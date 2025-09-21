@@ -1,0 +1,62 @@
+{
+  "name": "resume-web-template",
+  "version": "1.0.0",
+  "description": "A modern, professional, and responsive resume template built with HTML, CSS, and JavaScript",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000 || python -m http.server 8000 || npx http-server -p 8000",
+    "serve": "npx http-server -p 8000 -c-1",
+    "build": "echo 'No build process needed for static files'",
+    "test": "echo 'No tests specified yet'",
+    "lint:html": "npx htmlhint index.html",
+    "lint:css": "npx stylelint styles.css",
+    "lint:js": "npx eslint script.js",
+    "lint": "npm run lint:html && npm run lint:css && npm run lint:js",
+    "format": "npx prettier --write *.html *.css *.js *.md"
+  },
+  "keywords": [
+    "resume",
+    "template",
+    "portfolio",
+    "cv",
+    "html",
+    "css",
+    "javascript",
+    "responsive",
+    "modern",
+    "professional"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/resume-web-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/resume-web-template/issues"
+  },
+  "homepage": "https://yourusername.github.io/resume-web-template",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "htmlhint": "^1.1.0",
+    "http-server": "^14.1.0",
+    "prettier": "^3.0.0",
+    "stylelint": "^15.0.0",
+    "stylelint-config-standard": "^34.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
+  "files": [
+    "index.html",
+    "styles.css",
+    "script.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

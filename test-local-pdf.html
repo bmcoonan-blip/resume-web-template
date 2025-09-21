@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local jsPDF Test</title>
+    <script src="jspdf.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        #log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Local jsPDF Library Test</h1>
+    
+    <button class="btn" onclick="checkLibrary()">Check Library</button>
+    <button class="btn" onclick="createSimplePDF()">Create Simple PDF</button>
+    <button class="btn" onclick="createResumePDF()">Create Resume PDF</button>
+    <button class="btn" onclick="clearLog()">Clear Log</button>
+    
+    <div id="status"></div>
+    <div id="log"></div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        function checkLibrary() {
+            log('Checking jsPDF library...');
+            
+            log('typeof window.jsPDF: ' + typeof window.jsPDF);
+            log('typeof jsPDF: ' + typeof jsPDF);
+            
+            // Check window properties
+            const pdfKeys = Object.keys(window).filter(k => k.toLowerCase().includes('pdf'));
+            log('PDF-related window keys: ' + JSON.stringify(pdfKeys));
+            
+            if (typeof window.jsPDF !== 'undefined') {
+                log('✓ window.jsPDF is available');
+                try {
+                    const { jsPDF } = window.jsPDF;
+                    log('✓ Destructured jsPDF successfully');
+                    const doc = new jsPDF();
+                    log('✓ Created jsPDF instance successfully');
+                    showStatus('jsPDF library is working!');
+                } catch (error) {
+                    log('✗ Error creating jsPDF instance: ' + error.message);
+                    showStatus('Error with jsPDF: ' + error.message, true);
+                }
+            } else if (typeof jsPDF !== 'undefined') {
+                log('✓ Global jsPDF is available');
+                try {
+                    const doc = new jsPDF();
+                    log('✓ Created jsPDF instance successfully');
+                    showStatus('jsPDF library is working!');
+                } catch (error) {
+                    log('✗ Error creating jsPDF instance: ' + error.message);
+                    showStatus('Error with jsPDF: ' + error.message, true);
+                }
+            } else {
+                log('✗ jsPDF library not found');
+                showStatus('jsPDF library not loaded!', true);
+            }
+        }
+
+        function createSimplePDF() {
+            log('Attempting to create simple PDF...');
+            
+            try {
+                let doc;
+                
+                if (typeof window.jsPDF !== 'undefined') {
+                    const { jsPDF } = window.jsPDF;
+                    doc = new jsPDF();
+                } else if (typeof jsPDF !== 'undefined') {
+                    doc = new jsPDF();
+                } else {
+                    throw new Error('jsPDF not available');
+                }
+                
+                doc.setFontSize(16);
+                doc.text('Simple PDF Test', 20, 30);
+                doc.setFontSize(12);
+                doc.text('This PDF was created using the local jsPDF library.', 20, 50);
+                doc.text('Current time: ' + new Date().toLocaleString(), 20, 70);
+                
+                doc.save('simple_test.pdf');
+                
+                log('✓ Simple PDF created and downloaded!');
+                showStatus('Simple PDF created successfully!');
+                
+            } catch (error) {
+                log('✗ Error creating simple PDF: ' + error.message);
+                showStatus('Error creating PDF: ' + error.message, true);
+            }
+        }
+
+        function createResumePDF() {
+            log('Attempting to create resume PDF...');
+            
+            try {
+                let doc;
+                
+                if (typeof window.jsPDF !== 'undefined') {
+                    const { jsPDF } = window.jsPDF;
+                    doc = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                } else if (typeof jsPDF !== 'undefined') {
+                    doc = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                } else {
+                    throw new Error('jsPDF not available');
+                }
+                
+                let y = 20;
+                const margin = 20;
+                const lineHeight = 6;
+                
+                // Helper function
+                const addText = (text, x, yPos, fontSize = 10, bold = false) => {
+                    doc.setFontSize(fontSize);
+                    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+                    const lines = doc.splitTextToSize(text, 170);
+                    lines.forEach((line, index) => {
+                        doc.text(line, x, yPos + (index * lineHeight));
+                    });
+                    return yPos + (lines.length * lineHeight);
+                };
+                
+                // Create test resume
+                y = addText('Brian M Coonan', margin, y, 18, true);
+                y += 3;
+                y = addText('Solution Manager', margin, y, 14, true);
+                y += 5;
+                y = addText('bmcoonan@gmail.com • (989) 798-7304 • Bay City, MI', margin, y, 10);
+                y += 10;
+                
+                // Add separator line
+                doc.setDrawColor(102, 126, 234);
+                doc.setLineWidth(0.5);
+                doc.line(margin, y, 190, y);
+                y += 10;
+                
+                y = addText('PROFESSIONAL SUMMARY', margin, y, 12, true);
+                y += 3;
+                y = addText('Experienced Solution Manager with a proven track record of driving strategic initiatives and delivering innovative solutions across diverse industries.', margin, y);
+                y += 10;
+                
+                y = addText('WORK EXPERIENCE', margin, y, 12, true);
+                y += 5;
+                y = addText('Solution Manager', margin, y, 11, true);
+                y = addText('Company Name • Location • 2020 - Present', margin, y, 9);
+                y += 2;
+                y = addText('• Led cross-functional teams to deliver complex projects', margin + 5, y, 9);
+                y = addText('• Implemented process improvements resulting in 20% efficiency gain', margin + 5, y, 9);
+                
+                doc.save('brian_coonan_resume.pdf');
+                
+                log('✓ Resume PDF created and downloaded!');
+                showStatus('Resume PDF created successfully!');
+                
+            } catch (error) {
+                log('✗ Error creating resume PDF: ' + error.message);
+                showStatus('Error creating resume PDF: ' + error.message, true);
+            }
+        }
+
+        // Auto-check library on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, checking library...');
+                checkLibrary();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

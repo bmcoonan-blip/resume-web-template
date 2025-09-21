@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Library Test</title>
+    <!-- jsPDF library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        #log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>PDF Library Test</h1>
+    
+    <div class="test-section">
+        <h2>Library Loading Test</h2>
+        <button class="btn" onclick="testLibraries()">Test Library Loading</button>
+        <div id="library-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Simple PDF Test</h2>
+        <button class="btn" onclick="testSimplePDF()">Create Simple PDF</button>
+        <div id="simple-pdf-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Text-Based Resume PDF Test</h2>
+        <button class="btn" onclick="testResumePDF()">Create Resume PDF</button>
+        <div id="resume-pdf-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Log</h2>
+        <button class="btn" onclick="clearLog()">Clear Log</button>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        function testLibraries() {
+            log('Testing PDF libraries...');
+            
+            try {
+                // Test jsPDF
+                if (typeof window.jsPDF !== 'undefined') {
+                    log('✓ jsPDF library loaded successfully');
+                    const { jsPDF } = window.jsPDF;
+                    const testDoc = new jsPDF();
+                    log('✓ jsPDF constructor works');
+                } else {
+                    throw new Error('jsPDF library not found');
+                }
+
+                // Test html2canvas
+                if (typeof html2canvas !== 'undefined') {
+                    log('✓ html2canvas library loaded successfully');
+                } else {
+                    log('⚠ html2canvas library not found (optional for text-based PDF)');
+                }
+
+                showStatus('library-status', 'All libraries loaded successfully!');
+                
+            } catch (error) {
+                log('✗ Library test failed: ' + error.message);
+                showStatus('library-status', 'Library test failed: ' + error.message, true);
+            }
+        }
+
+        function testSimplePDF() {
+            log('Testing simple PDF creation...');
+            
+            try {
+                if (typeof window.jsPDF === 'undefined') {
+                    throw new Error('jsPDF library not loaded');
+                }
+
+                const { jsPDF } = window.jsPDF;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text('PDF Test Document', 20, 30);
+                doc.setFontSize(12);
+                doc.text('This is a test PDF created by jsPDF library.', 20, 50);
+                doc.text('If you can see this, PDF generation is working!', 20, 70);
+                
+                doc.save('test.pdf');
+                
+                log('✓ Simple PDF created successfully');
+                showStatus('simple-pdf-status', 'Simple PDF created and downloaded!');
+                
+            } catch (error) {
+                log('✗ Simple PDF test failed: ' + error.message);
+                showStatus('simple-pdf-status', 'Simple PDF test failed: ' + error.message, true);
+            }
+        }
+
+        function testResumePDF() {
+            log('Testing resume PDF creation...');
+            
+            try {
+                if (typeof window.jsPDF === 'undefined') {
+                    throw new Error('jsPDF library not loaded');
+                }
+
+                const { jsPDF } = window.jsPDF;
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                let currentY = 20;
+                const margin = 20;
+                const lineHeight = 6;
+                
+                // Helper function
+                const addText = (text, x, y, fontSize = 10, bold = false) => {
+                    doc.setFontSize(fontSize);
+                    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+                    const lines = doc.splitTextToSize(text, 170);
+                    lines.forEach((line, index) => {
+                        doc.text(line, x, y + (index * lineHeight));
+                    });
+                    return y + (lines.length * lineHeight);
+                };
+                
+                // Create test resume
+                currentY = addText('John Doe', margin, currentY, 18, true);
+                currentY += 3;
+                currentY = addText('Software Developer', margin, currentY, 14, true);
+                currentY += 5;
+                currentY = addText('john.doe@email.com • (555) 123-4567 • City, State', margin, currentY, 10);
+                currentY += 10;
+                
+                // Add line
+                doc.setDrawColor(102, 126, 234);
+                doc.setLineWidth(0.5);
+                doc.line(margin, currentY, 190, currentY);
+                currentY += 10;
+                
+                currentY = addText('PROFESSIONAL SUMMARY', margin, currentY, 12, true);
+                currentY += 3;
+                currentY = addText('Experienced software developer with expertise in web technologies and problem-solving skills.', margin, currentY);
+                currentY += 10;
+                
+                currentY = addText('WORK EXPERIENCE', margin, currentY, 12, true);
+                currentY += 5;
+                currentY = addText('Senior Developer', margin, currentY, 11, true);
+                currentY = addText('Tech Company • City, State • 2020 - Present', margin, currentY, 9);
+                currentY += 2;
+                currentY = addText('• Developed and maintained web applications', margin + 5, currentY, 9);
+                currentY = addText('• Collaborated with cross-functional teams', margin + 5, currentY, 9);
+                currentY += 10;
+                
+                currentY = addText('TECHNICAL SKILLS', margin, currentY, 12, true);
+                currentY += 5;
+                currentY = addText('Programming Languages:', margin, currentY, 10, true);
+                currentY = addText('JavaScript, Python, Java', margin + 5, currentY, 9);
+                currentY += 3;
+                currentY = addText('Frameworks:', margin, currentY, 10, true);
+                currentY = addText('React, Node.js, Express', margin + 5, currentY, 9);
+                
+                doc.save('test_resume.pdf');
+                
+                log('✓ Resume PDF created successfully');
+                showStatus('resume-pdf-status', 'Resume PDF created and downloaded!');
+                
+            } catch (error) {
+                log('✗ Resume PDF test failed: ' + error.message);
+                showStatus('resume-pdf-status', 'Resume PDF test failed: ' + error.message, true);
+            }
+        }
+
+        // Auto-run library test on page load
+        window.addEventListener('load', () => {
+            log('Page loaded, running initial tests...');
+            setTimeout(testLibraries, 500);
+        });
+    </script>
+</body>
+</html>

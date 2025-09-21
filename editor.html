@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Editor</title>
+    <link rel="stylesheet" href="editor-styles.css">
+    <!-- PDF generation now uses browser-native print functionality -->
+</head>
+<body>
+    <div class="editor-container">
+        <header class="editor-header">
+            <h1>Resume Editor</h1>
+            <div class="editor-actions">
+                <button id="load-current" class="btn btn-secondary">Load Current Resume</button>
+                <button id="preview" class="btn btn-primary">Preview</button>
+                <div class="save-options">
+                    <select id="save-location" class="save-location-select" title="Choose where to save your resume">
+                        <option value="localStorage">💾 Save to Browser (temporary)</option>
+                        <option value="download">⬇️ Quick Download</option>
+                        <option value="replace-original">🔄 Replace Original Resume</option>
+                        <option value="custom-name">📝 Download with Custom Name</option>
+                    </select>
+                    <button id="save" class="btn btn-success">Save Resume</button>
+                </div>
+                <div class="save-help" id="save-help">
+                    <small>💾 Saves to browser storage - data will persist until you clear browser data</small>
+                </div>
+            </div>
+        </header>
+
+        <main class="editor-main">
+            <form id="resume-form" class="resume-form">
+                <!-- Personal Information Section -->
+                <section class="form-section">
+                    <h2>Personal Information</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" name="fullName" placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="job-title">Job Title</label>
+                            <input type="text" id="job-title" name="jobTitle" placeholder="Enter your current job title">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="your.email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" placeholder="City, State">
+                        </div>
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="url" id="website" name="website" placeholder="yourwebsite.com">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Professional Summary Section -->
+                <section class="form-section">
+                    <h2>Professional Summary</h2>
+                    <div class="form-group">
+                        <label for="summary">Professional Summary</label>
+                        <textarea id="summary" name="summary" rows="4" 
+                                  placeholder="Brief professional summary highlighting your key skills, experience, and career objectives..."></textarea>
+                    </div>
+                </section>
+
+                <!-- Work Experience Section -->
+                <section class="form-section">
+                    <h2>Work Experience</h2>
+                    <div id="experience-container">
+                        <div class="experience-item">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Job Title</label>
+                                    <input type="text" name="experience[0][title]" placeholder="Job Title">
+                                </div>
+                                <div class="form-group">
+                                    <label>Company</label>
+                                    <input type="text" name="experience[0][company]" placeholder="Company Name">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <input type="text" name="experience[0][location]" placeholder="City, State">
+                                </div>
+                                <div class="form-group">
+                                    <label>Dates</label>
+                                    <input type="text" name="experience[0][dates]" placeholder="Jan 2020 - Present">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Responsibilities (one per line)</label>
+                                <textarea name="experience[0][responsibilities]" rows="4" 
+                                          placeholder="• Key responsibility or achievement&#10;• Another important accomplishment&#10;• Technical skills or leadership experience"></textarea>
+                            </div>
+                            <button type="button" class="remove-experience btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-experience" class="btn btn-secondary">Add Experience</button>
+                </section>
+
+                <!-- Skills Section -->
+                <section class="form-section">
+                    <h2>Technical Skills</h2>
+                    <div id="skills-container">
+                        <div class="skill-category">
+                            <div class="form-group">
+                                <label>Category Name</label>
+                                <input type="text" name="skills[0][category]" placeholder="Programming Languages">
+                            </div>
+                            <div class="form-group">
+                                <label>Skills (comma-separated)</label>
+                                <input type="text" name="skills[0][skills]" placeholder="JavaScript, Python, Java, TypeScript">
+                            </div>
+                            <button type="button" class="remove-skill-category btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-skill-category" class="btn btn-secondary">Add Skill Category</button>
+                </section>
+
+                <!-- Education Section -->
+                <section class="form-section">
+                    <h2>Education</h2>
+                    <div id="education-container">
+                        <div class="education-item">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Degree</label>
+                                    <input type="text" name="education[0][degree]" placeholder="Bachelor of Science in Computer Science">
+                                </div>
+                                <div class="form-group">
+                                    <label>School</label>
+                                    <input type="text" name="education[0][school]" placeholder="University Name">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <input type="text" name="education[0][location]" placeholder="City, State">
+                                </div>
+                                <div class="form-group">
+                                    <label>Graduation Date</label>
+                                    <input type="text" name="education[0][date]" placeholder="2020">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Details (optional)</label>
+                                <textarea name="education[0][details]" rows="2" 
+                                          placeholder="Relevant coursework, honors, or notable achievements..."></textarea>
+                            </div>
+                            <button type="button" class="remove-education btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-education" class="btn btn-secondary">Add Education</button>
+                </section>
+
+                <!-- Projects Section -->
+                <section class="form-section">
+                    <h2>Notable Projects</h2>
+                    <div id="projects-container">
+                        <div class="project-item">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Project Name</label>
+                                    <input type="text" name="projects[0][title]" placeholder="Project Name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Technologies</label>
+                                    <input type="text" name="projects[0][tech]" placeholder="React, Node.js, MongoDB">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Project Link (optional)</label>
+                                <input type="url" name="projects[0][link]" placeholder="https://github.com/username/project">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="projects[0][description]" rows="3" 
+                                          placeholder="Brief description of the project, your role, and key achievements..."></textarea>
+                            </div>
+                            <button type="button" class="remove-project btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-project" class="btn btn-secondary">Add Project</button>
+                </section>
+            </form>
+        </main>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resume Preview</h2>
+            <iframe id="preview-frame" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <!-- Custom Filename Modal -->
+    <div id="filename-modal" class="modal">
+        <div class="modal-content filename-modal-content">
+            <span class="close" id="filename-close">&times;</span>
+            <h2>Save Resume</h2>
+            <div class="filename-form">
+                <label for="custom-filename">Enter filename (without extension):</label>
+                <input type="text" id="custom-filename" placeholder="My_Resume" value="">
+                <div class="filename-options">
+                    <label>
+                        <input type="radio" name="file-format" value="html" checked>
+                        HTML (Complete webpage)
+                    </label>
+                    <label>
+                        <input type="radio" name="file-format" value="pdf">
+                        PDF (Direct download)
+                    </label>
+                </div>
+                <div class="filename-actions">
+                    <button id="save-with-filename" class="btn btn-success">Save</button>
+                    <button id="cancel-filename" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="editor-script.js"></script>
+</body>
+</html>
